@@ -1,0 +1,17 @@
+name: IFrameDupe
+version: 1.0.0
+main: IFrameDupe\Main
+api: 5.0.0
+author: HydroGamesDev
+description: An dupe plugin based on itemframe interaction ported from the Java Plugin FrameDupe by MrRafter
+commands:
+  iframedupe:
+    description: manages the frame dupe settings
+    permission: iframedupe.admin
+permissions:
+  iframedupe.admin:
+    default: op
+  iframedupe.bypass.cooldown:
+    default: op
+  iframedupe.use:
+    default: op

@@ -1,0 +1,14 @@
+command_block
+bedrock
+barrier
+item_frame
+netherite_block
+netherite_ingot
+netherite_scrap
+ancient_debris
+totem_of_undying
+totem
+dragon_egg
+enchanted_golden_apple
+end_crystal
+netherite_upgrade_smithing_template

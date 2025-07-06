@@ -1,0 +1,41 @@
+{
+	"name": "ninjaknights/itemframedupe",
+	"description": "Item Frame Duplication Plugin for Pocketmine",
+	"version": "1.0.0",
+	"type": "library",
+	"license": "MIT",
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"require": {
+		"pocketmine/pocketmine-mp": "^5.30.1"
+	},
+	"require-dev": {
+		"sof3/pharynx": "^0.3.0"
+	},
+	"autoload": {
+		"classmap": ["src"],
+		"psr-4": {
+			"ItemFrameDupe\\": "src/"
+		}
+	},
+	"scripts": {
+		"build-phar": [
+			"@composer install --no-dev --classmap-authoritative --ignore-platform-reqs",
+			"php -dphar.readonly=0 vendor/bin/pharynx -i=. -c -p=IFrameDupe.phar"
+		]
+	},
+	"config": {
+		"sort-packages": true,
+		"allow-plugins": {
+			"phpstan/extension-installer": true
+		}
+	},
+	"authors": [
+		{
+			"name": "HydroGamesDev",
+			"homepage": "https://github.com/HydroGamesDev",
+			"email": "hydrogamesnetwork@gmail.com",
+			"role": "Developer"
+		}
+	]
+}
