@@ -78,7 +78,7 @@ class Main extends PluginBase implements Listener{
 				$player->sendActionBarMessage(self::PREFIX."§mYou don't have permission to use this feature.");
 				return;
 			}
-			$item = $block?->getFramedItem();
+			$item = $block->getFramedItem();
 			if($item === null || !$item instanceof Item || $item->isNull()){
 				return;
 			}
