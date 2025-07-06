@@ -19,7 +19,7 @@
 	"scripts": {
 		"build-phar": [
 			"@composer install --no-dev --classmap-authoritative --ignore-platform-reqs",
-			"php -dphar.readonly=0 vendor/bin/pharynx -i=. -c -p=IFrameDupe.phar"
+			"php -dphar.readonly=0 vendor/bin/pharynx -i=. -c -p=ItemFrameDupe.phar"
 		]
 	},
 	"config": {

@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace IFrameDupe;
+namespace NinjaKnights\ItemFrameDupe;
 
-use IFrameDupe\CooldownManager;
-use IFrameDupe\IFDCommand;
+use NinjaKnights\ItemFrameDupe\CooldownManager;
+use NinjaKnights\ItemFrameDupe\ItemFrameDupeCommand;
 use pocketmine\block\ItemFrame;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
@@ -13,6 +13,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\world\sound\ItemFrameRemoveItemSound;
+use pocketmine\block\VanillaBlocks;
 
 class Main extends PluginBase implements Listener{
 	use SingletonTrait {
@@ -20,6 +21,10 @@ class Main extends PluginBase implements Listener{
 		reset as private;
 	}
 
+	/**
+	 * The prefix used for messages from this plugin.
+	 * @var string
+	 */
 	public const PREFIX = "§8[§3ItemFrameDupe§8] §v> §r";
 
 	/** @var Config|null */
@@ -41,18 +46,28 @@ class Main extends PluginBase implements Listener{
 		$this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML);
 		$this->cooldownManager = new CooldownManager();
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
-		$this->getServer()->getCommandMap()->register("iframedupe", new IFDCommand());
-		$this->getLogger()->info(self::PREFIX."ItemFrame Dupe plugin is enabled!");
+		$this->getServer()->getCommandMap()->register("itemframedupe", new ItemFrameDupeCommand());
 	}
 
+	/**
+	 * Gets the instance of the Config.
+	 * @return Config|null
+	*/
 	public static function getData(): ?Config{
 		return self::getInstance()->config ?? null;
 	}
 
+	/**
+	 * Gets the instance of the CooldownManager.
+	 * @return CooldownManager|null
+	*/
 	public static function getCooldownManager(): CooldownManager{
 		return self::getInstance()->cooldownManager ?? null;
 	}
 
+	/**
+	 * Loads the necessary files for the plugin.
+	*/
 	private function loadFiles(): void{
 		$this->saveResource("config.yml", false);
 		$this->saveResource("whitelist.txt");
@@ -64,6 +79,62 @@ class Main extends PluginBase implements Listener{
 		$this->blacklist = array_map('strtolower', array_filter(array_map('trim', explode("\n", file_get_contents($blacklistPath)))));
 	}
 
+	/**
+	 * Gets the chance of duplication based on the item frame's rotation.
+	 * @param int $rotation
+	 * @return int Chance percentage (0-100)
+	*/
+	private function getChanceByRotation(int $rotation): int{
+		return (int) ($this->config->getNested("chances.rotation_" . $rotation) ?? 0);
+	}
+
+	/**
+	 * Gets the cooldown for a specific item name.
+	 * @param string $itemName
+	 * @return int Cooldown in seconds
+	*/
+	private function getCooldownForItemName(string $itemName): int{
+		$itemCooldowns = $this->config->get("item-cooldowns", []);
+		return (int) ($itemCooldowns[strtolower($itemName)] ?? $this->config->get("default-cooldown"));
+	}
+
+	/**
+	 * Logs the duplication event to a file.
+	 * @param string $playerName
+	 * @param string $worldName
+	 * @param string $itemName
+	 * @param int $rotation
+	 * @param int $chance
+	*/
+	private function logDupe(string $playerName, string $worldName, string $itemName, int $rotation, int $chance): void{
+		$line = sprintf(
+			"[%s] Player: %s, World: %s, Item: %s, Rotation: %d, Chance: %d%%\n",
+			date("Y-m-d H:i:s"),
+			$playerName,
+			$worldName,
+			$itemName,
+			$rotation,
+			$chance
+		);
+		file_put_contents($this->getDataFolder() . "dupe.log", $line, FILE_APPEND);
+	}
+
+	/**
+	 * Normalizes the item name to a consistent format.
+	 * @param Item $item
+	 * @return string
+	 */
+	public function getNormalizedName(Item $item): string{
+		$normalizedItemId = strtolower($item->getVanillaName());
+		$normalizedItemId = str_replace([" ", "-", "’", "'", ":"], "_", $normalizedItemId);
+		return preg_replace('/[^a-z0-9_]/', '', $normalizedItemId);
+	}
+
+	/**
+	 * Handles player interactions with item frames.
+	 * @param PlayerInteractEvent $event
+	 * @return void
+	 */
 	public function onPlayerInteract(PlayerInteractEvent $event): void{
 		if(!$this->config->get("enabled", true)) return;
 		$player = $event->getPlayer();
@@ -78,14 +149,12 @@ class Main extends PluginBase implements Listener{
 				$player->sendActionBarMessage(self::PREFIX."§mYou don't have permission to use this feature.");
 				return;
 			}
-			$item = $block->getFramedItem();
+			$item = $block->getFramedItem(); // Not using ItemFrame tile
 			if($item === null || !$item instanceof Item || $item->isNull()){
 				return;
 			}
 			
-			$normalizedItemId = strtolower($item->getVanillaName());
-			$normalizedItemId = str_replace([" ", "-", "’", "'", ":"], "_", $normalizedItemId);
-			$itemName = preg_replace('/[^a-z0-9_]/', '', $normalizedItemId);
+			$itemName = $this->getNormalizedName($item);
 			if(in_array($itemName, $this->blacklist)){
 				$player->sendActionBarMessage(self::PREFIX."§mThis item is not allowed for duping.");
 				return;
@@ -94,7 +163,11 @@ class Main extends PluginBase implements Listener{
 				return;
 			}
 			if(!$this->config->get("dupe-shulker", true)){
-				if($itemName === "shulker_box" || $itemName === "minecraft:shulker_box"){
+				if(
+					$itemName === "shulker_box" ||
+					$itemName === "minecraft:shulker_box" ||
+					$itemName === VanillaBlocks::SHULKER_BOX()->getName()
+				){
 					$player->sendActionBarMessage(self::PREFIX."§mShulker Box duplication is disabled.");
 					return;
 				}
@@ -127,27 +200,5 @@ class Main extends PluginBase implements Listener{
 				}
 			}
 		}
-	}
-
-	private function getChanceByRotation(int $rotation): int{
-		return (int) ($this->config->getNested("chances.rotation_" . $rotation) ?? 0);
-	}
-
-	private function getCooldownForItemName(string $itemName): int{
-		$itemCooldowns = $this->config->get("item-cooldowns", []);
-		return (int) ($itemCooldowns[strtolower($itemName)] ?? $this->config->get("default-cooldown"));
-	}
-
-	private function logDupe(string $playerName, string $worldName, string $itemName, int $rotation, int $chance): void{
-		$line = sprintf(
-			"[%s] Player: %s, World: %s, Item: %s, Rotation: %d, Chance: %d%%\n",
-			date("Y-m-d H:i:s"),
-			$playerName,
-			$worldName,
-			$itemName,
-			$rotation,
-			$chance
-		);
-		file_put_contents($this->getDataFolder() . "dupe.log", $line, FILE_APPEND);
 	}
 }

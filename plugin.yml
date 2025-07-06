@@ -1,12 +1,17 @@
-name: IFrameDupe
+name: ItemFrameDupe
+description: An ItemFrame duplication plugin based on itemframe interaction, ported from the Java Plugin FrameDupe by MrRafter
 version: 1.0.0
-main: IFrameDupe\Main
+main: NinjaKnights\ItemFrameDupe\Main
 api: 5.0.0
-author: HydroGamesDev
-description: An dupe plugin based on itemframe interaction ported from the Java Plugin FrameDupe by MrRafter
+
+website: https://github.com/ninjaknights/ItemFrameDupe
+authors:
+  - NinjaKnights
+  - HydroGamesDev
+
 commands:
   iframedupe:
-    description: manages the frame dupe settings
+    description: manage item frame duplication settings
     permission: iframedupe.admin
 permissions:
   iframedupe.admin:

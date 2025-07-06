@@ -85,7 +85,7 @@ item-cooldowns:
 
 ## 📄 License
 
-This project is licensed under the [MIT License](https://github.com/ninjaknights/ItemFrameDupe/blob/main/LICENSE).
+This project is licensed under the [GNU License](https://github.com/ninjaknights/ItemFrameDupe/blob/main/LICENSE).
 
 ---
 

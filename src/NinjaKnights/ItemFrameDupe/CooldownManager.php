@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace IFrameDupe;
+namespace NinjaKnights\ItemFrameDupe;
 
 class CooldownManager{
 

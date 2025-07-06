@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace IFrameDupe;
+namespace NinjaKnights\ItemFrameDupe;
 
-use IFrameDupe\Main;
+use NinjaKnights\ItemFrameDupe\Main;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 
-class IFDCommand extends Command{
+class ItemFrameDupeCommand extends Command{
 
 	public function __construct(){
 		parent::__construct("iframedupe", "manage item frame duplication settings", "/iframedupe", ["ifd", "fd"]);
