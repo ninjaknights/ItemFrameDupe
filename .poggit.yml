@@ -1,0 +1,9 @@
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/ninjaknights/ItemFrameDupe
+build-by-default: true
+branches:
+- main
+projects:
+  ItemFrameDupe:
+    path: ""
+    icon: icon.png
+...
