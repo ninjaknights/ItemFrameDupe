@@ -13,9 +13,8 @@
 		"sof3/pharynx": "^0.3.0"
 	},
 	"autoload": {
-		"classmap": ["src"],
 		"psr-4": {
-			"ItemFrameDupe\\": "src/"
+			"NinjaKnights\\ItemFrameDupe\\": "src/"
 		}
 	},
 	"scripts": {
