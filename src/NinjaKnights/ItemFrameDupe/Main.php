@@ -21,20 +21,17 @@ class Main extends PluginBase implements Listener{
 		reset as private;
 	}
 
-	/**
-	 * The prefix used for messages from this plugin.
-	 * @var string
-	 */
+	/** @var string */
 	public const PREFIX = "§8[§3ItemFrameDupe§8] §v> §r";
 
-	/** @var Config|null */
-	private ?Config $config = null;
+	/** @var Config */
+	private Config $config;
 	/** @var CooldownManager|null */
-	private ?CooldownManager $cooldownManager = null;
+	private CooldownManager|null $cooldownManager = null;
 
-	/** @var string[] */
+	/** @var array<string, bool> */
 	private array $whitelist = [];
-	/** @var string[] */
+	/** @var array<string, bool> */
 	private array $blacklist = [];
 
 	public function onLoad(): void{
@@ -51,17 +48,17 @@ class Main extends PluginBase implements Listener{
 
 	/**
 	 * Gets the instance of the Config.
-	 * @return Config|null
+	 * @return Config
 	*/
-	public static function getData(): ?Config{
-		return self::getInstance()->config ?? null;
+	public static function getData(): Config{
+		return self::getInstance()->config;
 	}
 
 	/**
 	 * Gets the instance of the CooldownManager.
 	 * @return CooldownManager|null
 	*/
-	public static function getCooldownManager(): CooldownManager{
+	public static function getCooldownManager(): CooldownManager|null{
 		return self::getInstance()->cooldownManager ?? null;
 	}
 
@@ -75,8 +72,12 @@ class Main extends PluginBase implements Listener{
 		$this->saveResource("dupe.log");
 		$whitelistPath = $this->getDataFolder() . "whitelist.txt";
 		$blacklistPath = $this->getDataFolder() . "blacklist.txt";
-		$this->whitelist = array_map('strtolower', array_filter(array_map('trim', explode("\n", file_get_contents($whitelistPath)))));
-		$this->blacklist = array_map('strtolower', array_filter(array_map('trim', explode("\n", file_get_contents($blacklistPath)))));
+		$whitelistContent = file_get_contents($whitelistPath) ?: '';
+		$blacklistContent = file_get_contents($blacklistPath) ?: '';
+		$whitelistLines = array_map('strtolower', array_filter(array_map('trim', explode("\n", $whitelistContent))));
+		$blacklistLines = array_map('strtolower', array_filter(array_map('trim', explode("\n", $blacklistContent))));
+		$this->whitelist = array_fill_keys($whitelistLines, true);
+		$this->blacklist = array_fill_keys($blacklistLines, true);
 	}
 
 	/**
@@ -127,7 +128,7 @@ class Main extends PluginBase implements Listener{
 	public function getNormalizedName(Item $item): string{
 		$normalizedItemId = strtolower($item->getVanillaName());
 		$normalizedItemId = str_replace([" ", "-", "’", "'", ":"], "_", $normalizedItemId);
-		return preg_replace('/[^a-z0-9_]/', '', $normalizedItemId);
+		return preg_replace('/[^a-z0-9_]/', '', $normalizedItemId) ?? '';
 	}
 
 	/**
@@ -177,13 +178,13 @@ class Main extends PluginBase implements Listener{
 				return;
 			}
 			if(!$player->hasPermission("iframedupe.bypass.cooldown") || !$player->hasPermission("iframedupe.admin")){
-				$remaining = $this->cooldownManager->isOnCooldown($name, $itemName);
+				$remaining = $this->cooldownManager?->isOnCooldown($name, $itemName);
 				if($remaining > 0){
 					$remaining = ceil($remaining);
 					$player->sendActionBarMessage(self::PREFIX."§mYou must wait §7{$remaining}§m seconds before duping on §v{$itemName}§m again.");
 					return;
 				}else{
-					$this->cooldownManager->clearCooldown($name, $itemName);
+					$this->cooldownManager?->clearCooldown($name, $itemName);
 				}
 			}
 			$chance = $this->getChanceByRotation($block->getItemRotation());
@@ -194,7 +195,7 @@ class Main extends PluginBase implements Listener{
 				$world = $player->getWorld();
 				$world->dropItem($block->getPosition()->add(0.5, 0.5, 0.5), clone $item->setCount(1));
 				$world->addSound($block->getPosition(), new ItemFrameRemoveItemSound());
-				$this->cooldownManager->setCooldown($name, $itemName, $this->getCooldownForItemName($itemName));
+				$this->cooldownManager?->setCooldown($name, $itemName, $this->getCooldownForItemName($itemName));
 				if($this->config->get("log-dupes", true)){
 					$this->logDupe($name, $world->getFolderName(), $itemName, $block->getItemRotation(), $chance);
 				}

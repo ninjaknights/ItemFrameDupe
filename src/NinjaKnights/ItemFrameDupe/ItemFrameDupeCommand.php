@@ -53,7 +53,7 @@ class ItemFrameDupeCommand extends Command{
 					$sender->sendMessage(Main::PREFIX . "§cUsage: /iframedupe cooldown-remove <item> <player>");
 					break;
 				}
-				Main::getCooldownManager()->clearCooldown(strtolower($args[2]), strtolower($args[1]));
+				Main::getCooldownManager()?->clearCooldown(strtolower($args[2]), strtolower($args[1]));
 				$sender->sendMessage(Main::PREFIX . "Cooldown for '{$args[1]}' removed for '{$args[2]}'.");
 				break;
 			case "cooldown-clear":
@@ -61,7 +61,7 @@ class ItemFrameDupeCommand extends Command{
 					$sender->sendMessage(Main::PREFIX . "§cUsage: /iframedupe cooldown-clear <player>");
 					break;
 				}
-				Main::getCooldownManager()->clearAllCooldowns(strtolower($args[1]));
+				Main::getCooldownManager()?->clearAllCooldowns(strtolower($args[1]));
 				$sender->sendMessage(Main::PREFIX . "All cooldowns for '{$args[1]}' cleared.");
 				break;
 			case "cooldown-list":
@@ -69,7 +69,7 @@ class ItemFrameDupeCommand extends Command{
 					$sender->sendMessage(Main::PREFIX . "§cUsage: /iframedupe cooldown-list <player>");
 					break;
 				}
-				$cooldowns = Main::getCooldownManager()->getCooldowns(strtolower($args[1]));
+				$cooldowns = Main::getCooldownManager()?->getCooldowns(strtolower($args[1]));
 				if(empty($cooldowns)){
 					$sender->sendMessage(Main::PREFIX . "No cooldowns found for '{$args[1]}'.");
 				}else{

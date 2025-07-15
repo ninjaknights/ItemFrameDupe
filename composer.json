@@ -1,22 +1,31 @@
 {
 	"name": "ninjaknights/itemframedupe",
 	"description": "Item Frame Duplication Plugin for Pocketmine",
-	"type": "library",
-	"license": "MIT",
+	"type": "project",
+	"license": "GPL-3.0",
 	"minimum-stability": "dev",
 	"prefer-stable": true,
-	"require": {
-		"pocketmine/pocketmine-mp": "^5.0.0"
-	},
+	"authors": [
+		{
+		"name": "HydroGamesDev",
+		"homepage": "https://github.com/HydroGamesDev",
+		"role": "Developer",
+		"email": "hydrogamesnetwork@gmail.com"
+		}
+	],
 	"require-dev": {
-		"sof3/pharynx": "^0.3.0"
-	},
+		"pocketmine/pocketmine-mp": "^5.0.0",
+    	"php": "^8.1",
+		"sof3/pharynx": "^0.3.8",
+    	"phpstan/phpstan": "^1.12"
+  	},
 	"autoload": {
 		"psr-4": {
 			"NinjaKnights\\ItemFrameDupe\\": "src/"
 		}
 	},
 	"scripts": {
+		"analyze": "vendor/bin/phpstan analyze src --level=8",
 		"build-phar": [
 			"@composer install --no-dev --classmap-authoritative --ignore-platform-reqs",
 			"php -dphar.readonly=0 vendor/bin/pharynx -i=. -c -p=ItemFrameDupe.phar"
@@ -27,13 +36,5 @@
 		"allow-plugins": {
 			"phpstan/extension-installer": true
 		}
-	},
-	"authors": [
-		{
-			"name": "HydroGamesDev",
-			"homepage": "https://github.com/HydroGamesDev",
-			"email": "hydrogamesnetwork@gmail.com",
-			"role": "Developer"
-		}
-	]
+	}
 }
